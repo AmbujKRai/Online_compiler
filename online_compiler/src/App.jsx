@@ -1,10 +1,10 @@
-import Input from "./components/input.jsx"
+import CodeEditor from "./components/codeEditor.jsx"
 
 function App() {
 
   return (
     <>
-      <Input />
+      <CodeEditor />
     </>
   )
 }
