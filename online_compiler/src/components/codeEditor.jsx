@@ -10,97 +10,96 @@ import MonacoEditor from "@monaco-editor/react";
 //live preview for html css
 
 const CodeEditor = () => {
-  const [code, setCode] = useState("// Write your code here");
-  const [input, setInput] = useState("");
-  const [output, setOutput] = useState("");
-  const [languageId, setLanguageId] = useState(54);
-  const [theme, setTheme] = useState("vs-dark");
-
-  const handleCompile = async () => {
-    try {
-      const response = await createSubmission(code, languageId, input);
-      const { token } = response.data;
-
-      const interval = setInterval(async () => {
-        const result = await getSubmissionResult(token);
-        if (result.data.status.id > 2) {
-          clearInterval(interval);
-          setOutput(result.data.stdout || result.data.stderr || "No output");
-        }
-      }, 1000);
-    } catch (error) {
-      console.error("Error:", error);
-      setOutput("An error occurred while compiling.");
-    }
-  };
-
-  const handleThemeToggle = () => {
-    setTheme((prevTheme) => (prevTheme === "vs-dark" ? "light" : "vs-dark"));
-  };
-
-  return (
-    <div className="flex flex-col h-screen bg-gray-900 text-white">
-      <header className="p-4 bg-gray-800 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Online Code Compiler</h1>
-        <button
-          onClick={handleThemeToggle}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Toggle {theme === "vs-dark" ? "Light" : "Dark"} Theme
-        </button>
-      </header>
-
-      <main className="flex flex-grow">
-        <div className="w-2/3 p-4">
-          <MonacoEditor
-            height="500px"
-            defaultLanguage="cpp"
-            value={code}
-            theme={theme}
-            onChange={(value) => setCode(value || "")}
-          />
-        </div>
-
-        <div className="w-1/3 p-4 bg-gray-100 text-black rounded">
-          <div className="mb-4">
-            <label className="block font-semibold">Custom Input:</label>
-            <textarea
-              rows="5"
-              className="w-full p-2 border rounded"
-              placeholder="Enter custom input"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+    const [code, setCode] = useState("// Write your code here");
+    const [input, setInput] = useState("");
+    const [output, setOutput] = useState("");
+    const [languageId, setLanguageId] = useState(54);
+    const [theme, setTheme] = useState("vs-dark");
+  
+    const handleCompile = async () => {
+      try {
+        const response = await createSubmission(code, languageId, input);
+        const { token } = response.data;
+  
+        const interval = setInterval(async () => {
+          const result = await getSubmissionResult(token);
+          if (result.data.status.id > 2) {
+            clearInterval(interval);
+            setOutput(result.data.stdout || result.data.stderr || "No output");
+          }
+        }, 1000);
+      } catch (error) {
+        console.error("Error:", error);
+        setOutput("An error occurred while compiling.");
+      }
+    };
+  
+    const handleThemeToggle = () => {
+      setTheme((prevTheme) => (prevTheme === "vs-dark" ? "light" : "vs-dark"));
+    };
+  
+    return (
+      <div className="d-flex flex-column vh-100 bg-dark text-white">
+        <header className="bg-secondary p-3 d-flex justify-content-between align-items-center">
+          <h1 className="fs-4 fw-bold">Online Code Compiler</h1>
+          <button
+            onClick={handleThemeToggle}
+            className="btn btn-primary"
+          >
+            Toggle {theme === "vs-dark" ? "Light" : "Dark"} Theme
+          </button>
+        </header>
+  
+        <main className="d-flex flex-grow-1">
+          <div className="col-8 p-3">
+            <MonacoEditor
+              height="500px"
+              defaultLanguage="cpp"
+              value={code}
+              theme={theme}
+              onChange={(value) => setCode(value || "")}
             />
           </div>
-          <div className="mb-4">
-            <label className="block font-semibold">Select Language:</label>
-            <select
-              value={languageId}
-              onChange={(e) => setLanguageId(Number(e.target.value))}
-              className="w-full p-2 border rounded"
+  
+          <div className="col-4 p-3 bg-light text-dark rounded">
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Custom Input:</label>
+              <textarea
+                rows="5"
+                className="form-control"
+                placeholder="Enter custom input"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Select Language:</label>
+              <select
+                value={languageId}
+                onChange={(e) => setLanguageId(Number(e.target.value))}
+                className="form-select"
+              >
+                <option value="54">C++</option>
+                <option value="62">Java</option>
+                <option value="71">Python</option>
+              </select>
+            </div>
+            <button
+              onClick={handleCompile}
+              className="btn btn-success w-100"
             >
-              <option value="54">C++</option>
-              <option value="62">Java</option>
-              <option value="71">Python</option>
-              {/* needs more languages */}
-            </select>
+              Run Code
+            </button>
+            <div className="mt-3">
+              <h3 className="fw-semibold">Output:</h3>
+              <pre className="bg-dark text-white p-3 rounded" style={{ height: "160px", overflowY: "auto" }}>
+                {output}
+              </pre>
+            </div>
           </div>
-          <button
-            onClick={handleCompile}
-            className="bg-green-500 text-white w-full py-2 rounded hover:bg-green-600"
-          >
-            Run Code
-          </button>
-          <div className="mt-4">
-            <h3 className="font-semibold">Output:</h3>
-            <pre className="bg-black text-white p-2 rounded h-40 overflow-y-auto">
-              {output}
-            </pre>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-};
-
-export default CodeEditor;
+        </main>
+      </div>
+    );
+  };
+  
+  export default CodeEditor;
