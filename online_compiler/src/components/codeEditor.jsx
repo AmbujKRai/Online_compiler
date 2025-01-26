@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createSubmission, getSubmissionResult } from "../api";
 import MonacoEditor from "@monaco-editor/react";
 
@@ -8,21 +9,14 @@ const languageTemplates = {
   71: `print("Hello, World!")`, // Python
   63: `#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}`, // C
 };
-//needs:
-//more languages
-//live preview for html css
 
-
-
-
-
-
-const CodeEditor = () => {
+const CodeEditor = ({ user }) => {
   const [code, setCode] = useState(languageTemplates[54]);
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [languageId, setLanguageId] = useState(54);
   const [theme, setTheme] = useState("vs-dark");
+  const navigate = useNavigate();
 
   const handleCompile = async () => {
     try {
@@ -46,29 +40,59 @@ const CodeEditor = () => {
     const selectedLanguageId = Number(e.target.value);
     setLanguageId(selectedLanguageId);
     setCode(languageTemplates[selectedLanguageId] || "// Write your code here");
+    setOutput("");
   };
 
   const handleThemeToggle = () => {
     setTheme((prevTheme) => (prevTheme === "vs-dark" ? "light" : "vs-dark"));
   };
 
+  const handleSignIn = () => {
+    navigate("/signin");
+  };
+
+  const handleGoToDashboard = () => {
+    navigate("/dashboard");
+  };
+
   return (
     <div className="d-flex flex-column vh-100 bg-dark text-white">
       <header className="bg-secondary p-3 d-flex justify-content-between align-items-center">
         <h1 className="fs-4 fw-bold">Online Code Compiler</h1>
-        <button
-          onClick={handleThemeToggle}
-          className="btn btn-primary"
-        >
-          Toggle {theme === "vs-dark" ? "Light" : "Dark"} Theme
-        </button>
+        <div>
+          {user ? (
+            <button
+              onClick={handleGoToDashboard}
+              className="btn btn-success me-2"
+            >
+              Go to Dashboard
+            </button>
+          ) : (
+            <button onClick={handleSignIn} className="btn btn-primary me-2">
+              Sign In
+            </button>
+          )}
+          <button
+            onClick={handleThemeToggle}
+            className="btn btn-light"
+          >
+            Toggle {theme === "vs-dark" ? "Light" : "Dark"} Theme
+          </button>
+        </div>
       </header>
 
       <main className="d-flex flex-grow-1">
         <div className="col-8 p-3">
           <MonacoEditor
             height="500px"
-            defaultLanguage="cpp"
+            language={
+              {
+                54: "cpp",
+                62: "java",
+                71: "python",
+                63: "c",
+              }[languageId]
+            }
             value={code}
             theme={theme}
             onChange={(value) => setCode(value || "")}
@@ -97,7 +121,6 @@ const CodeEditor = () => {
               <option value="62">Java</option>
               <option value="71">Python</option>
               <option value="63">C</option>
-              {/* Add more languages as needed */}
             </select>
           </div>
           <button
@@ -108,7 +131,10 @@ const CodeEditor = () => {
           </button>
           <div className="mt-3">
             <h3 className="fw-semibold">Output:</h3>
-            <pre className="bg-dark text-white p-3 rounded" style={{ height: "160px", overflowY: "auto" }}>
+            <pre
+              className="bg-dark text-white p-3 rounded"
+              style={{ height: "160px", overflowY: "auto" }}
+            >
               {output}
             </pre>
           </div>
